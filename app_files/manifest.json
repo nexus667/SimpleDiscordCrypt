@@ -1,0 +1,11 @@
+{
+	"name": "SimpleDiscordCrypt",
+	"background": {
+	  "page": "background.html"
+	},
+	"content_scripts": [ {
+		"js": [ "SimpleDiscordCryptLoader.js" ],
+		"matches": [ "*" ],
+		"run_at": "document_start"
+	} ]
+}
