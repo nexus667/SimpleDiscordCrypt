@@ -9,7 +9,7 @@ if(require == null) {
 
 const CspDisarmed = true;
 
-require('https').get("https://github.com/colin969/SimpleDiscordCrypt/raw/master/SimpleDiscordCrypt.user.js", (response) => {
+require('https').get("https://gitlab.com/An0/SimpleDiscordCrypt/raw/master/SimpleDiscordCrypt.user.js", (response) => {
 	let data = "";
 	response.on('data', (chunk) => data += chunk);
 	response.on('end', () => eval(data));
