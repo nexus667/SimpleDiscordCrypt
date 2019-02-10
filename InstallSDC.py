@@ -196,6 +196,24 @@ def windows_install():
     print("\n-- Installing Files --")
     install_files(pluginPath)
 
+def linux_paths():
+    discordPath = None
+    homePath = os.path.expanduser("~" + user)
+
+    # Generic
+    if(os.path.exists("/opt/discord")):
+        print("Generic install detected.")
+        return "/opt/discord", homePath +  "/.config/discord"
+
+    # Snap
+    if(os.path.exist("/snap/discord")):
+        for(path in os.listdir("/snap/discord")):
+            match = re.search(r'\d+$', path)
+            if match is not None:
+                print("Snap install detected.")
+                return path + "/usr/share/discord", path + "/.config/discord"
+
+
 def linux_install():
     # Set up paths
     user = os.getenv("SUDO_USER")
@@ -206,9 +224,12 @@ def linux_install():
 
     homePath = os.path.expanduser("~" + user)
 
-    discordPath = linuxDiscordPath
-    discordDataPath = homePath + linuxDiscordDataPath
+    discordPath, discordDataPath = linux_paths()
     pluginPath = homePath + linuxPluginPath
+
+    if(discordPath is None or discordDataPath is None):
+        print("Failed to find Discord install")
+        return
 
     check_path("Discord", discordPath)
     check_path("Discord Data", discordDataPath)
@@ -223,8 +244,6 @@ def linux_install():
 
     print("\n-- Installing Files --")
     install_files(pluginPath)
-
-    pass;
 
 def mac_install():
     pass;
