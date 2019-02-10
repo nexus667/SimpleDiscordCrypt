@@ -5,6 +5,7 @@ import io
 import re
 import json
 import urllib.request
+import subprocess
 
 try:
     import winreg
@@ -25,10 +26,14 @@ resBackground = "https://raw.githubusercontent.com/colin969/SimpleDiscordCrypt/m
 resLoader = "https://github.com/colin969/SimpleDiscordCrypt/raw/master/app_files/SimpleDiscordCryptLoader.js"
 
 linuxDiscordProcName = "Discord"
+linuxDiscordPath = "/opt/discord"
+linuxDiscordDataPath = "/.config/discord"
+linuxPluginPath = "/.config/SimpleDiscordCrypt"
 
 win32DiscordProcName = r"Discord.exe"
 win32DiscordPath = r"\Discord"
 win32PluginPath = r"\SimpleDiscordCrypt"
+win32ExtensionPath = '../../SimpleDiscordCrypt'
 win32RegistryKey = r"Software\Microsoft\Windows\CurrentVersion\Run"
 win32RegistryValue = r"\Microsoft\Windows\Start Menu\Programs\Discord Inc\Discord.lnk"
 
@@ -85,8 +90,8 @@ def root_electron(path):
     file.write(lines)
     file.close()
 
-def add_extension(path):
-    extListPath = path + "\\DevTools Extensions"
+def add_extension(path, extPath):
+    extListPath = path + "/DevTools Extensions"
 
     if(os.path.exists(extListPath)):
         # Load extensions list
@@ -97,8 +102,8 @@ def add_extension(path):
         if len(lines) != 0:
             # Add extension path if not present
             js = json.loads(lines)
-            if '../../SimpleDiscordCrypt' not in js:
-                js.append('../../SimpleDiscordCrypt')
+            if extPath not in js:
+                js.append(extPath)
             else:
                 print("Extension already present")
                 return
@@ -113,7 +118,7 @@ def add_extension(path):
     # No extension list present, make a new one
     else:
         file = io.open(extListPath, 'w')
-        file.write('["../../SimpleDiscordCrypt"]')
+        file.write('["' + extPath + '"]')
         file.close()
         print("Added Extension")
 
@@ -128,9 +133,12 @@ def replace_startup(key, value):
     print("Updated Startup Registry")
 
 def install_files(path):
-    manifestPath = path + "\\manifest.json"
-    backgroundPath = path + "\\background.html"
-    loaderPath = path + "\\SimpleDiscordCryptLoader.js"
+    manifestPath = path + "/manifest.json"
+    backgroundPath = path + "/background.html"
+    loaderPath = path + "/SimpleDiscordCryptLoader.js"
+
+    if(not os.path.exists(path)):
+        os.mkdir(path)
 
     if(not os.path.exists(manifestPath)):
         print("Downloading manifest.json")
@@ -180,7 +188,7 @@ def windows_install():
         root_electron(path)
 
     print("\n-- Adding Extension --")
-    add_extension(discordDataPath)
+    add_extension(discordDataPath, win32ExtensionPath)
 
     print("\n-- Editing Startup Registry --")
     replace_startup(win32RegistryKey, registryValue)
@@ -189,6 +197,33 @@ def windows_install():
     install_files(pluginPath)
 
 def linux_install():
+    # Set up paths
+    user = os.getenv("SUDO_USER")
+    if(user == None):
+        print("Failure - Must run with SUDO")
+        input("Enter a key...")
+        sys.exit(0)
+
+    homePath = os.path.expanduser("~" + user)
+
+    discordPath = linuxDiscordPath
+    discordDataPath = homePath + linuxDiscordDataPath
+    pluginPath = homePath + linuxPluginPath
+
+    check_path("Discord", discordPath)
+    check_path("Discord Data", discordDataPath)
+
+    stop_process(linuxDiscordProcName)
+
+    print("\n-- Rooting Electron --")
+    root_electron(discordPath + "/resources/electron.asar")
+
+    print("\n-- Adding Extension --")
+    add_extension(discordDataPath, pluginPath)
+
+    print("\n-- Installing Files --")
+    install_files(pluginPath)
+
     pass;
 
 def mac_install():
