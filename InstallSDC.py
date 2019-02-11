@@ -16,10 +16,14 @@ try:
     import psutil
 except ImportError:
     print("Installing missing psutil module")
-    os.system("python -m pip install psutil")
-    os.system("python3 -m pip install psutil")
-    print("\n-- Required Modules --Installed Psutil module, please run script again")
-    input("Press any key...")
+    sub = subprocess.Popen([sys.executable, '-m', 'pip', 'install', 'psutil'])
+    sub.wait()
+    print("\n-- Required Modules --\nInstalled Psutil module\n\n")
+    try:
+        sub = subprocess.Popen([sys.executable, sys.argv[0]], cwd=os.getcwd())
+        sub.wait()
+    except:
+        pass
     sys.exit(0)
 
 # Defines
@@ -271,3 +275,4 @@ if __name__ == "__main__":
         linux_install()
 
     input("\nInstall Complete!\nPress any key...")
+    sys.exit(0)
