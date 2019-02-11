@@ -17,7 +17,10 @@ try:
 except ImportError:
     print("Installing missing psutil module")
     os.system("python -m pip install psutil")
-    import psutil
+    os.system("python3 -m pip install psutil")
+    print("\n-- Required Modules --Installed Psutil module, please run script again")
+    input("Press any key...")
+    sys.exit(0)
 
 # Defines
 
@@ -198,6 +201,7 @@ def windows_install():
 
 def linux_paths():
     discordPath = None
+    user = os.getenv("SUDO_USER")
     homePath = os.path.expanduser("~" + user)
 
     # Generic
@@ -205,14 +209,20 @@ def linux_paths():
         print("Generic install detected.")
         return "/opt/discord", homePath +  "/.config/discord"
 
+    # Deb install
+    if(os.path.exists("/usr/share/discord")):
+        print(".deb install detected.")
+        return "/usr/share/discord", homePath + "/.config/discord"
+
     # Snap
-    if(os.path.exist("/snap/discord")):
-        for(path in os.listdir("/snap/discord")):
+    if(os.path.exists("/snap/discord")):
+        for path in os.listdir("/snap/discord"):
             match = re.search(r'\d+$', path)
             if match is not None:
                 print("Snap install detected.")
-                return path + "/usr/share/discord", path + "/.config/discord"
-
+                print("Snap is not supported. (Files aren't modifiable)\n Please install via the Discord site.\n")
+                input("Press any key...")
+                sys.exit(0)
 
 def linux_install():
     # Set up paths
