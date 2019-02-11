@@ -7,6 +7,7 @@ import json
 import urllib.request
 import subprocess
 
+# Windows Registry module
 try:
     import winreg
 except ImportError:
@@ -15,10 +16,16 @@ except ImportError:
 try:
     import psutil
 except ImportError:
-    print("Installing missing psutil module")
+    # Install Psutil
     sub = subprocess.Popen([sys.executable, '-m', 'pip', 'install', 'psutil'])
-    sub.wait()
-    print("\n-- Required Modules --\nInstalled Psutil module\n\n")
+    try:
+        subprocess.check_call(cmd)
+    except subprocess.CalledProcessError:
+        print("Failed to install required module. Is Python on PATH?")
+        sys.exit(0)
+
+    # Run script with updated modules
+    print("\n-- Required Modules --\nInstalled Psutil module\n")
     try:
         sub = subprocess.Popen([sys.executable, sys.argv[0]], cwd=os.getcwd())
         sub.wait()
@@ -48,7 +55,7 @@ win32RegistryValue = r"\Microsoft\Windows\Start Menu\Programs\Discord Inc\Discor
 
 def exit_app(msg):
     print(msg)
-    input("Press any key...")
+    input("\nPress any key...")
     sys.exit(0)
 
 # Kill any running processes with given name
@@ -228,17 +235,13 @@ def linux_paths():
             match = re.search(r'\d+$', path)
             if match is not None:
                 print("Snap install detected.")
-                print("Snap is not supported. (Files aren't modifiable)\n Please install via the Discord site.\n")
-                input("Press any key...")
-                sys.exit(0)
+                exit_app("Snap is not supported. (Files aren't modifiable)\n Please install via the Discord site.")
 
 def linux_install():
     # Set up paths
     user = os.getenv("SUDO_USER")
     if(user == None):
-        print("Failure - Must run with SUDO")
-        input("Enter a key...")
-        sys.exit(0)
+        exit_app("Failure - Must run with SUDO")
 
     homePath = os.path.expanduser("~" + user)
 
@@ -278,5 +281,4 @@ if __name__ == "__main__":
     if platform.startswith("linux"):
         linux_install()
 
-    input("\nInstall Complete!\nPress any key...")
-    sys.exit(0)
+    exit_app("\nInstall Complete!")
