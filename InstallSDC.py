@@ -46,6 +46,11 @@ win32RegistryValue = r"\Microsoft\Windows\Start Menu\Programs\Discord Inc\Discor
 
 # Util Funcs
 
+def exit_app(msg):
+    print(msg)
+    input("Press any key...")
+    sys.exit(0)
+
 # Kill any running processes with given name
 def stop_process(name):
     print("Stopping " + name)
@@ -58,8 +63,7 @@ def check_path(name, path):
     if(os.path.exists(path)):
         print(name + " located at - " + path)
     else:
-        print(name + " not found")
-        sys.exit(0)
+        exit_app("name + " not found"")
 
 # Create path if empty
 def create_path(name, path):
