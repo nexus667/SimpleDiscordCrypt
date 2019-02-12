@@ -70,7 +70,7 @@ def check_path(name, path):
     if(os.path.exists(path)):
         print(name + " located at - " + path)
     else:
-        exit_app("name + " not found"")
+        exit_app(name + " not found")
 
 # Create path if empty
 def create_path(name, path):
