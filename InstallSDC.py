@@ -44,6 +44,11 @@ linuxDiscordPath = "/opt/discord"
 linuxDiscordDataPath = "/.config/discord"
 linuxPluginPath = "/.config/SimpleDiscordCrypt"
 
+macDiscordProcName = "Discord"
+macDiscordPath = "/Applications/Discord.app/Contents"
+macDiscordDataPath = "/Library/Application Support/discord"
+macPluginPath = "/.config/SimpleDiscordCrypt"
+
 win32DiscordProcName = r"Discord.exe"
 win32DiscordPath = r"\Discord"
 win32PluginPath = r"\SimpleDiscordCrypt"
@@ -267,7 +272,30 @@ def linux_install():
     install_files(pluginPath)
 
 def mac_install():
-    pass;
+    # Set up paths
+    user = os.getenv("SUDO_USER")
+    if(user == None):
+        exit_app("Failure - Must run with SUDO")
+
+    homePath = os.path.expanduser("~" + user)
+
+    discordPath = macDiscordPath
+    discordDataPath = homePath + macDiscordDataPath
+    pluginPath = homePath + macDiscordPath
+
+    check_path("Discord", discordPath)
+    check_path("Discord Data", discordDataPath)
+
+    stop_process(macDiscordProcName)
+
+    print("\n-- Rooting Electron --")
+    root_electron(discordPath + "/resources/electron.asar")
+
+    print("\n-- Adding Extension --")
+    add_extension(discordDataPath, pluginPath)
+
+    print("\n-- Installing Files --")
+    install_files(pluginPath)
 
 if __name__ == "__main__":
     print("-- SimpleDiscordCrypt Installer --")
