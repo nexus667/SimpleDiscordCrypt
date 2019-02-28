@@ -281,7 +281,7 @@ def mac_install():
 
     discordPath = macDiscordPath
     discordDataPath = homePath + macDiscordDataPath
-    pluginPath = homePath + macDiscordPath
+    pluginPath = macDiscordPath
 
     check_path("Discord", discordPath)
     check_path("Discord Data", discordDataPath)
